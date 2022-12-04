@@ -90,9 +90,9 @@ Node * search_by_cpf(Node * root, int cpf){
         if(cpf == root->person->cpf){
             return root;
         }else if(cpf > root->person->cpf){
-            root->right = search_by_cpf(root, cpf);
+            root->right = search_by_cpf(root->right, cpf);
         }else if(cpf < root->person->cpf){
-            root->left = search_by_cpf(root, cpf);
+            root->left = search_by_cpf(root->left, cpf);
         }
     }
 
@@ -104,9 +104,9 @@ Node * search_by_nome(Node * root, char * name){
         if(strcmp(name,root->person->name) > 0){
             return root;
         }else if(name[0] > root->person->name[0]){
-            root->right = search_by_nome(root, name);
+            root->right = search_by_nome(root->right, name);
         }else if(name[0] < root->person->name[0]){
-            root->left = search_by_nome(root, name);
+            root->left = search_by_nome(root->left, name);
         }
     }
     return NULL;
@@ -120,16 +120,14 @@ Node * remove_cpf(Node * root, int cpf){
                 free(root);
                 return NULL;
             }else if (root->left != NULL && root->right != NULL){
-                treePrint(root);
                 Node * aux = root->left;
                 while (aux->right != NULL)
                 {
                     aux = aux->right;
                 }
-                aux->left = root->left;
-                aux->right = root->right;
-                free(root);
-                return aux;   
+                root->person = aux->person;
+                root->left = remove_cpf(root->left,cpf);
+                return root;   
 
             }else{
                 Node * aux;
@@ -142,12 +140,47 @@ Node * remove_cpf(Node * root, int cpf){
                 return aux;
             }
         }else if(cpf > root->person->cpf){
-            root->right = remove_cpf(root, cpf);
+            root->right = remove_cpf(root->right, cpf);
         }else if(cpf < root->person->cpf){
-            root->left = remove_cpf(root, cpf);
+            root->left = remove_cpf(root->left, cpf);
         }
     }
+    return root;
+}
 
+Node * remove_name(Node * root, char * name){
+    if(root){
+        if(strcmp(name,root->person->name) > 0){
+            if(root->left == NULL && root->right == NULL){
+                printf("Nenhum filho\n");
+                free(root);
+                return NULL;
+            }else if (root->left != NULL && root->right != NULL){
+                Node * aux = root->left;
+                while (aux->right != NULL)
+                {
+                    aux = aux->right;
+                }
+                root->person = aux->person;
+                root->left = remove_cpf(root->left,name);
+                return root;   
+
+            }else{
+                Node * aux;
+                if(root->left != NULL){
+                    aux = root->left;
+                }else{
+                    aux = root->right;
+                }
+                free(root);
+                return aux;
+            }
+        }else if(strcmp(name,root->person->name) > 0){
+            root->right = remove_cpf(root->right, name);
+        }else if(strcmp(name,root->person->name) < 0){
+            root->left = remove_cpf(root->left, name);
+        }
+    }
     return root;
 }
 
@@ -190,7 +223,7 @@ int main(){
         case 3:
             printf("Digite o cpf: ");
             scanf("%d", &cpf);
-            //root_cpf = remove_cpf(root_cpf,cpf);
+            root_cpf = remove_cpf(root_cpf,cpf);
             getchar();getchar();
             break;
         case 4:
