@@ -35,9 +35,10 @@ Person * buildPerson(){
 
 void treePrint(Node * root){
     if(root != NULL){
+        printf("\n===========================================\n");
         printf("CPF: %d\n", root->person->cpf);
-        //printf("NOME: %s",root->person->name);
-        //printf("JOB: %s",root->person->job);
+        printf("NOME: %s",root->person->name);
+        printf("JOB: %s",root->person->job);
         treePrint(root->left);
         treePrint(root->right);
     }
@@ -49,6 +50,13 @@ void treeFree(Node * root){
         treeFree(root->right);
         free(root);
     }
+}
+
+void print_Person(Person * person){
+    printf("\n===========================================\n");
+    printf("CPF: %d\n", person->cpf);
+    printf("NOME: %s",person->name);
+    printf("JOB: %s",person->job);
 }
 
 Node * insert_by_cpf(Node * root, Person * person){
@@ -76,45 +84,51 @@ Node * insert_by_name(Node * root, Person * person){
         aux->right = NULL;
         return aux;
     }else{
-        if(person->cpf > root->person->cpf){
+        if(person->name[0] > root->person->name[0]){
             root->right = insert_by_name(root->right,person);
-        }else if(person->cpf < root->person->cpf){
+        }else if(person->name[0] < root->person->name[0]){
             root->left = insert_by_name(root->left,person);
         }
     }
     return root;
 }
 
-Node * search_by_cpf(Node * root, int cpf){
-    if(root){
+void search_by_cpf(Node * root, int cpf){
+    if(root != NULL){
         if(cpf == root->person->cpf){
-            return root;
+            print_Person(root->person);
         }else if(cpf > root->person->cpf){
-            root->right = search_by_cpf(root->right, cpf);
+            search_by_cpf(root->right, cpf);
         }else if(cpf < root->person->cpf){
-            root->left = search_by_cpf(root->left, cpf);
+            search_by_cpf(root->left, cpf);
         }
+    }else{
+        printf("\n===========================================\n");
+        printf("Pessoa não encontrada!!");
     }
-
-    return NULL;
 }
 
-Node * search_by_nome(Node * root, char * name){
-    if(root){
-        if(strcmp(name,root->person->name) > 0){
-            return root;
+
+
+
+void search_by_name(Node * root, char * name){
+    if(root != NULL){
+        if(strcmp(name,root->person->name) == 0){
+            print_Person(root->person);
         }else if(name[0] > root->person->name[0]){
-            root->right = search_by_nome(root->right, name);
+            search_by_name(root->right, name);
         }else if(name[0] < root->person->name[0]){
-            root->left = search_by_nome(root->left, name);
+            search_by_name(root->left, name);
         }
+    }else{
+        printf("\n===========================================\n");
+        printf("Pessoa não encontrada!!");
     }
-    return NULL;
 }
 
 Node * remove_cpf(Node * root, int cpf){
 
-    if(root){
+    if(root != NULL){
         if(cpf == root->person->cpf){
             if(root->left == NULL && root->right == NULL){
                 free(root);
@@ -149,10 +163,9 @@ Node * remove_cpf(Node * root, int cpf){
 }
 
 Node * remove_name(Node * root, char * name){
-    if(root){
-        if(strcmp(name,root->person->name) > 0){
+    if(root != NULL){
+        if(strcmp(name,root->person->name) == 0){
             if(root->left == NULL && root->right == NULL){
-                printf("Nenhum filho\n");
                 free(root);
                 return NULL;
             }else if (root->left != NULL && root->right != NULL){
@@ -162,7 +175,7 @@ Node * remove_name(Node * root, char * name){
                     aux = aux->right;
                 }
                 root->person = aux->person;
-                root->left = remove_cpf(root->left,name);
+                root->left = remove_name(root->left,name);
                 return root;   
 
             }else{
@@ -175,10 +188,10 @@ Node * remove_name(Node * root, char * name){
                 free(root);
                 return aux;
             }
-        }else if(strcmp(name,root->person->name) > 0){
-            root->right = remove_cpf(root->right, name);
-        }else if(strcmp(name,root->person->name) < 0){
-            root->left = remove_cpf(root->left, name);
+        }else if(name[0] > root->person->name[0]){
+            root->right = remove_name(root->right, name);
+        }else if(name[0] < root->person->name[0]){
+            root->left = remove_name(root->left, name);
         }
     }
     return root;
@@ -212,6 +225,7 @@ int main(){
         menu();
         printf("Digite uma opção: ");
         scanf("%d", &choose);
+        getchar();
 
         switch (choose){
         case 1:
@@ -227,25 +241,31 @@ int main(){
             getchar();getchar();
             break;
         case 4:
-            printf("Digete o nome\n");
+            printf("Digete o nome: ");
             fgets(name,30,stdin);
-            //
+            root_name = remove_name(root_name,name);
             break;
         case 5:
             printf("Digite o cpf: ");
             scanf("%d", &cpf);
-            treePrint(search_by_cpf(root_cpf,cpf));
+            search_by_cpf(root_cpf,cpf);
             getchar();getchar();
             break;
         case 6:
             printf("Digite o name: ");
             fgets(name,30,stdin);
-            treePrint(search_by_nome(root_name,name));
+            search_by_name(root_name,name);
             getchar();getchar();
             break;
         case 7:
+            system("clear");
             treePrint(root_cpf);
-            getchar();getchar();
+            getchar();
+            break;
+        case 8:
+            system("clear");
+            treePrint(root_name);
+            getchar();
             break;
         }
 
